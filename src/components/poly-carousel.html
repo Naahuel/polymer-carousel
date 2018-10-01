@@ -1,0 +1,121 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/utils/render-status.html">
+
+<dom-module id="poly-carousel">
+  <template>
+    <style>
+      :host {
+        display: block
+      }
+
+      .poly-carousel{
+        position: relative;
+      }
+
+      ::slotted(.poly-carousel__image){
+        position: absolute;
+        opacity: 0;
+        left: 0;
+        top: 0;
+        transition: opacity 0.2s ease-in-out;
+      }
+
+      ::slotted(.poly-carousel__image--active){
+        opacity: 1;
+      }
+
+    </style>
+
+    <span>Current image: [[imgIndex]]</span>
+    <div class="poly-carousel">
+      <slot>
+
+      </slot>
+    </div>
+
+  </template>
+
+  <script>
+    /**
+     * `poly-carousel` This is a simple carousel element demo
+     *
+     * @summary This is a simple carousel element demo.
+     * @customElement
+     * @polymer
+     * @extends {Polymer.Element}
+     */
+    class Polycarousel extends Polymer.Element {
+      /**
+       * String providing the tag name to register the element under.
+       */
+      static get is() {
+        return 'poly-carousel';
+      }
+
+      /**
+       * Object describing property-related metadata used by Polymer features
+       */
+      static get properties() {
+        return {
+          imgIndex: {
+            type: Number,
+            value: 0
+          },
+          imgs: {
+            type: Array,
+            value: []
+          }
+        };
+      }
+
+      /**
+       * Instance of the element is created/upgraded. Use: initializing state,
+       * set up event listeners, create shadow dom.
+       * @constructor
+       */
+      constructor() {
+        super();
+
+        this._shiftImages     = this._shiftImages.bind(this);
+        this._activateImage   = this._activateImage.bind(this);
+        this._deactivateImage = this._deactivateImage.bind(this);
+      }
+
+      /**
+       * Use for one-time configuration of your component after local DOM is initialized. 
+       */
+      ready() {
+        super.ready();
+
+        this.imgs = this.querySelectorAll('img');
+        if( this.imgs.length ){
+          this.imgs.forEach(img => {
+            img.classList.add('poly-carousel__image')
+          });
+          this._activateImage();
+          setInterval(this._shiftImages, 1000);
+        }
+      }
+
+      _activateImage(){
+        // Add active class
+        this.imgs[this.imgIndex].classList.add('poly-carousel__image--active');
+      }
+
+      _deactivateImage(){
+        // Remove current image
+        this.imgs[this.imgIndex].classList.remove('poly-carousel__image--active');
+      }
+
+      _shiftImages(){
+        this._deactivateImage();
+        // Increase index
+        this.imgIndex = this.imgIndex >= (this.imgs.length - 1) ? 0 : this.imgIndex + 1;
+        this._activateImage();
+      }
+
+    }
+
+    window.customElements.define(Polycarousel.is, Polycarousel);
+  </script>
+</dom-module>
